@@ -1,76 +1,341 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>магазин всякого</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Modern Store - Всякая фигня</title>
+<!-- Google Fonts для красивых шрифтов -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <header>
-        <h1>Магазин Всякого</h1>
-         <div class="products" id="product-list">
-        <!-- Товары будут добавлены здесь скриптом -->
+
+<!-- Баннер -->
+<div class="banner">
+  <h1>Лучшие товары по низким ценам!</h1>
+  <p>Не пропустите наши акции и скидки!</p>
+</div>
+
+<!-- Контакт и телефон -->
+<div class="contact-info">
+  <p>Позвоните нам: <a href="tel:+79001234567">+7 (900) 123-45-67</a></p>
+</div>
+
+<!-- Основной раздел -->
+<main>
+  <section class="products-section">
+    <h2>Наши товары</h2>
+    <div class="products" id="product-list"></div>
+  </section>
+
+  <section class="cart-section">
+    <h2>Корзина (<span id="total-count">0</span> товаров)</h2>
+    <ul id="cart-items"></ul>
+    <div class="cart-summary">
+      <p><strong>Общая сумма:</strong> <span id="total-price">0</span> руб.</p>
     </div>
-        </header>
+    <button class="btn-primary" id="payButton">Перейти к оплате</button>
+  </section>
+</main>
 
-    <div id="cart">
-        <h2>Корзина</h2>
-        <ul id="cart-items"></ul>
-        <p><strong>Всего товаров:</strong> <span id="total-count">0</span></p>
-    </div>
-    <script>
-        const products = [
-            { id: 1, name: "Книга", price: 300, image: "https://m.media-amazon.com/images/I/91vUlj0vShL._AC_UF1000,1000_QL80_.jpg" },
-            { id: 2, name: "Игрушка", price: 500, image: "https://ae04.alicdn.com/kf/S9ac256b66f5942aeb4b7c1a9ff51dc574.jpg" },
-            { id: 3, name: "Чайник", price: 1500, image: "https://storage.yandexcloud.net/mostro-gm-media/03a5176d-cee3-2f81-8902-fd69e25fb773/1.jpg" },
-            { id: 4, name: "Рюкзак", price: 1200, image: "https://i.pinimg.com/736x/48/dc/29/48dc29d0c9c7f104a8e127d2cf2f96ab.jpg" }
-        ];
-        const productList = document.getElementById('product-list');
-        const cartItems = document.getElementById('cart-items');
-        const totalCountSpan = document.getElementById('total-count');
+<!-- Скрипты -->
+<script>
+const products = [
+    { id:1, name:"Книга", price:300, image:"https://m.media-amazon.com/images/I/91vUlj0vShL._AC_UF1000,1000_QL80_.jpg" },
+    { id:2, name:"Игрушка", price:500, image:"https://ae04.alicdn.com/kf/S9ac256b66f5942aeb4b7c1a9ff51dc574.jpg" },
+    { id:3, name:"Чайник", price:1500, image:"https://storage.yandexcloud.net/mostro-gm-media/03a5176d-cee3-2f81-8902-fd69e25fb773/1.jpg" },
+    { id:4, name:"Рюкзак", price:1200, image:"https://i.pinimg.com/736x/48/dc/29/48dc29d0c9c7f104a8e127d2cf2f96ab.jpg" }
+];
 
-        const cart = [];
-        function renderProducts() {
-            products.forEach(product => {
-                const productDiv = document.createElement('div');
-                productDiv.className = 'product';
+const productList = document.getElementById('product-list');
+const cartItems = document.getElementById('cart-items');
+const totalCountSpan = document.getElementById('total-count');
+const totalPriceSpan = document.getElementById('total-price');
 
-                productDiv.innerHTML = `
-                    <img src="${product.image}" alt="${product.name}">
-                    <h3>${product.name}</h3>
-                    <div class="price">${product.price} руб.</div>
-                    <button onclick="addToCart(${product.id})">Добавить в корзину</button>
-                `;
-                productList.appendChild(productDiv);
-            });
-        }
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            if (product) {
-                cart.push(product);
-                updateCart();
-            }
-        }
-        function updateCart() {
-            cartItems.innerHTML = '';
-            cart.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.textContent = `${item.name} - ${item.price} руб. [Удалить]`;
-                li.style.cursor = 'pointer';
-                li.onclick = () => {
-                    cart.splice(index, 1);
-                    updateCart();
-                };
-                cartItems.appendChild(li);
-            });
-            totalCountSpan.textContent = cart.length;
-        }
-             renderProducts();
+let cart = [];
+
+// Рендер товаров
+function renderProducts() {
+  products.forEach(product => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+
+    card.innerHTML = `
+      <img src="${product.image}" alt="${product.name}" />
+      <h3>${product.name}</h3>
+      <p class="price">${product.price} руб.</p>
+      <button class="btn-add" onclick="addToCart(${product.id})">Добавить в корзину</button>
+    `;
+    productList.appendChild(card);
+  });
+}
+
+// Добавление в корзину
+function addToCart(productId) {
+  const product = products.find(p => p.id === productId);
+  if (product) {
+    cart.push(product);
+    updateCart();
+  }
+}
+
+// Обновление корзины
+function updateCart() {
+  cartItems.innerHTML = '';
+  let totalPrice = 0;
+  cart.forEach((item, index) => {
+    totalPrice += item.price;
+    const li = document.createElement('li');
+    li.innerHTML = `
+      ${item.name} - ${item.price} руб. 
+      <button class="btn-remove" onclick="removeFromCart(${index})">Удалить</button>
+    `;
+    cartItems.appendChild(li);
+  });
+  document.getElementById('total-count').textContent = cart.length;
+  document.getElementById('total-price').textContent = totalPrice;
+}
+
+// Удаление из корзины
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  updateCart();
+}
+
+// Кнопка оплаты (фейк)
 document.getElementById('payButton').onclick = function() {
-            alert('Это фейковая кнопка. Здесь должна быть страница оплаты.') };
-            
-    </script>
+  alert('Это фейковая кнопка. Здесь должна быть страница оплаты.');
+  // Можно сделать редирект или оставить как есть
+  // window.location.href = 'payment.html';
+};
 
-        </body>
+// Инициализация
+renderProducts();
+</script>
+
+</body>
 </html>
+2. styles.css — стильный дизайн
+css
+
+/* Общие стили */
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1.6;
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  color: #333;
+}
+
+/* Баннер */
+.banner {
+  background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+  background-size: cover;
+  background-position: center;
+  padding: 50px 20px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.banner h1 {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+}
+
+.banner p {
+  font-size: 1.2em;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Контактные данные */
+.contact-info {
+  background-color: rgba(255,255,255,0.8);
+  text-align: center;
+  padding: 10px 0;
+  font-size: 1em;
+  box-shadow: inset 0 -1px 0 #ddd;
+}
+
+/* Основной контент */
+main {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Разделы */
+section {
+  background: white;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 15px;
+  max-width: 1000px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  flex: 1 1 300px;
+}
+
+/* Заголовки */
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+/* Товары */
+.products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.product-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  width: 200px;
+  padding: 15px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+}
+
+.product-card img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+h3 {
+  font-size: 1.1em;
+  margin: 10px 0 5px;
+  text-align: center;
+  color: #34495e;
+}
+
+.price {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-bottom: 10px;
+  color: #e67e22;
+}
+
+.btn-add {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s;
+}
+
+.btn-add:hover {
+  background-color: #2ecc71;
+}
+
+/* Корзина */
+#cart {
+  background: #fafafa;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+#cart h2 {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+#cart-items {
+  list-style: none;
+  padding: 0;
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+
+#cart-items li {
+  display: flex;
+  justify-content: space-between;
+  background: #fff;
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-remove {
+  background-color: #e74c3c;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.2s;
+}
+
+.btn-remove:hover {
+  background-color: #c0392b;
+}
+
+/* Итог */
+.cart-summary {
+  text-align: center;
+  margin: 15px 0;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #34495e;
+}
+
+/* Кнопка оплаты */
+#payButton {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 12px;
+  background-color: #2980b9;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#payButton:hover {
+  background-color: #3498db;
+}
+
+/* Стилизация для кнопки */
+.btn-primary {
+  background-color: #2980b9;
+  color: #fff;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2em;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #3498db;
+}
+
+/* Responsive */
+@media(max-width: 768px) {
+  main {
+    flex-direction:
